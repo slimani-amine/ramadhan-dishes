@@ -63,7 +63,10 @@
   margin: 2% 0;
   display: flex;
   gap: 11px;
-  flex-wrap: wrap;
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    display: none; 
+  }
 }
 
 .ingredient-content {
@@ -107,7 +110,10 @@
   margin: 2% 0;
   display: flex;
   gap: 42px;
-  flex-wrap: wrap; /* Added this line to enable wrapping */
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    display: none; 
+  }
 }
 
 .dishes-content {

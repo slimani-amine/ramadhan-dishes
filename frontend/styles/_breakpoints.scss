@@ -1,0 +1,79 @@
+$breakpoints: (
+  "xxxxs": 280px,
+  "xxxs": 440px,
+  "xxs": 570px,
+  "xs": 700px,
+  "sm": 1000px,
+  "md": 1200px,
+  "md-p": 1320px,
+  "lg": 1500px,
+  "xl": 1600px,
+  "xxl": 1700px,
+  "xxxl": 1850px,
+);
+@mixin xxxxs {
+  @media (max-width: map-get($breakpoints, "xxxxs")) {
+    @content;
+  }
+}
+@mixin xxxs {
+  @media (max-width: map-get($breakpoints, "xxxs")) {
+    @content;
+  }
+}
+@mixin xxs {
+  @media (max-width: map-get($breakpoints, "xxs")) {
+    @content;
+  }
+}
+@mixin xs {
+  @media (max-width: map-get($breakpoints, "xs")) {
+    @content;
+  }
+}
+
+@mixin sm {
+  @media (max-width: map-get($breakpoints, "sm")) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media (max-width: map-get($breakpoints, "md")) {
+    @content;
+  }
+}
+@mixin md-p {
+  @media (max-width: map-get($breakpoints, "md-p")) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media (max-width: map-get($breakpoints, "lg")) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media (max-width: map-get($breakpoints, "xl")) {
+    @content;
+  }
+}
+
+@mixin xxl {
+  @media (max-width: map-get($breakpoints, "xxl")) {
+    @content;
+  }
+}
+@mixin xxxl {
+  @media (max-width: map-get($breakpoints, "xxxl")) {
+    @content;
+  }
+}
+
+@mixin breakpoint($bp: 0) {
+  @media (max-width: $bp) {
+    @content;
+  }
+}

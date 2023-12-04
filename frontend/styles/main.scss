@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;600&family=Sen&display=swap');
+//variables
+@import "variables";
+
+//base styles
+@import "base";
+
+//utilities
+
+@import "breakpoints";
+@import "mediaQuearies";
+@import "utilities";
+
+//mixins
+@import "mixins";
+
+// cards
+@import "components/cards";
+@import "components/sections";

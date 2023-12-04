@@ -1,0 +1,21 @@
+@mixin h($f-size, $color) {
+  color: $color ;
+  font-size: $f-size;
+  font-weight: 600;
+  line-height: 40px;
+  letter-spacing: 0.75px;
+}
+
+@mixin card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-radius: 1.3rem;
+  padding: 7.5px 7.5px 3rem 7.5px;
+  max-width: 44rem;
+
+  &:hover {
+    box-shadow: $box-shadow-light;
+    transition: $hover-transition;
+  }
+}

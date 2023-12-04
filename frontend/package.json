@@ -1,0 +1,14 @@
+{
+  "name": "ramadan_dishes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compSass": "node-sass styles/main.scss css/index.css --watch"
+  },
+  "author": "Amine",
+  "license": "ISC",
+  "devDependencies": {
+    "node-sass": "^9.0.0"
+  }
+}

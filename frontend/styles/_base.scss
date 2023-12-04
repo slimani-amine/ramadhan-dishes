@@ -1,0 +1,26 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+  overflow-x: hidden;
+}
+
+body { 
+  font-family: "Inter", sans-serif; 
+  overflow-x: hidden;
+  background: linear-gradient(108deg, #fff 41.67%, #f5f3eb 100%);
+  display: flex;
+  z-index: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+}

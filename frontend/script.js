@@ -2,18 +2,20 @@ import * as model from "./model.js";
 
 const ingredients = await model.getIngredient();
 const dishes = await model.getDishes();
+let suggIngredients = [];
+let suggIngredientsRendred = [];
+//rendering
 const randomIntFromInterval = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 const ingredientContents = document.querySelector(".ingredient-contents");
 const dishesContents = document.querySelector(".dishes-contents");
 const renderSugg = (ingredients, dishes) => {
-  console.log(ingredients, dishes);
   if (ingredients.length > 0) {
-    let suggIngredients = [];
     for (let i = 0; i < 5; i++) {
       let rndInt = randomIntFromInterval(0, ingredients.length - 1);
       if (!suggIngredients.includes(rndInt)) {
+        suggIngredientsRendred.push(ingredients[rndInt]);
         suggIngredients.push(rndInt);
         let html = `<div class="ingredient-content" id=${rndInt}>
       <img
@@ -65,7 +67,30 @@ const renderSugg = (ingredients, dishes) => {
 };
 
 renderSugg(ingredients, dishes);
+
+const ingredientContent = document.querySelectorAll(".ingredient-content");
+ingredientContent.forEach((ing, i) => {
+  ing.addEventListener("click", (e) => {
+    console.log(ing, "element");
+
+    let newdishes = dishes.filter(
+      (dishe) =>
+        dishe.attributes.name
+          .toLowerCase()
+          .includes(ing.children[1].innerHTML.toLowerCase()) ||
+        dishe.attributes.ingredients.data.some((e) =>
+          e.attributes.name
+            .toLowerCase()
+            .includes(ing.children[1].innerHTML.toLowerCase())
+        )
+    );
+    console.log(newdishes, "neww");
+    render(suggIngredientsRendred, newdishes);
+  });
+});
+
 const render = (ingredients, dishes) => {
+  console.log(ingredients, dishes);
   ingredientContents.innerHTML = "";
   dishesContents.innerHTML = "";
 
@@ -99,6 +124,7 @@ const render = (ingredients, dishes) => {
     });
 };
 
+// search
 const searchButton = document.querySelector(".search-btn");
 searchButton.addEventListener("click", (e) => {
   e.preventDefault();
@@ -117,10 +143,11 @@ searchButton.addEventListener("click", (e) => {
         e.attributes.name.toLowerCase().includes(searchValue)
       )
   );
-
+  console.log(newdishes, "hh");
   render(newing, newdishes);
 });
 
+//prayer
 const currentDate = new Date();
 const year = currentDate.getFullYear();
 const month = currentDate.getMonth() + 1;
@@ -131,8 +158,6 @@ if (navigator.geolocation) {
     (position) => {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
-      console.log("Latitude:", latitude);
-      console.log("Longitude:", longitude);
     },
     (error) => {
       console.error("Error getting location:", error.message);
@@ -148,8 +173,6 @@ const prayerTimes = await model.getPrayerTimes(
   latitude,
   longitude
 );
-
-console.log(prayerTimes);
 
 const now = new Date();
 const dayOfMonth = now.getDate();
@@ -207,19 +230,18 @@ function getDayOfMonthSuffix(day) {
   }
 }
 
-//next 
+//next
 const prayerHour = document.querySelectorAll(".prayerHour");
 let prayers = [];
 prayerHour.forEach((e) => {
-    const prayerName = e.getAttribute("id");
-    const prayerTime = prayerTimes[dayOfMonth].timings[prayerName];
-    const convertedTime = convertTo12HourFormat(prayerTime);
-    if (prayerName !== "Sunrise") {
-      prayers.push(convertedTime);
-    }
-    e.textContent = convertedTime;
+  const prayerName = e.getAttribute("id");
+  const prayerTime = prayerTimes[dayOfMonth].timings[prayerName];
+  const convertedTime = convertTo12HourFormat(prayerTime);
+  if (prayerName !== "Sunrise") {
+    prayers.push(convertedTime);
+  }
+  e.textContent = convertedTime;
 });
-console.log(prayers);
 
 const convertToTime = (time) => {
   const [hours, minutes] = time.split(":");
@@ -229,57 +251,100 @@ const convertToTime = (time) => {
   return prayerTime;
 };
 
-prayers.map((e)=>{
-    console.log(e,formattedTime);
-})
+function getNextPrayerTimeAndDifference(formattedTime, prayers) {
+  const [hours, minutes, period] = formattedTime
+    .match(/(\d+):(\d+) ([APMapm]{2})/)
+    .slice(1, 4);
+  const timeInMinutes =
+    (period.toUpperCase() === "PM"
+      ? 12 + parseInt(hours, 10)
+      : parseInt(hours, 10)) *
+      60 +
+    parseInt(minutes, 10);
 
+  const prayerTimesInMinutes = prayers.map((prayer) => {
+    const [prayerHours, prayerMinutes, prayerPeriod] = prayer
+      .match(/(\d+):(\d+) ([APMapm]{2})/)
+      .slice(1, 4);
+    return (
+      (prayerPeriod.toUpperCase() === "PM"
+        ? 12 + parseInt(prayerHours, 10)
+        : parseInt(prayerHours, 10)) *
+        60 +
+      parseInt(prayerMinutes, 10)
+    );
+  });
 
-function getNextPrayerTime(formattedTime, prayers) {
-    // Convert formattedTime to minutes
-    const [hours, minutes, period] = formattedTime.split(/:| /);
-    let timeInMinutes = (parseInt(hours) % 12 + (period.toUpperCase() === 'PM' ? 12 : 0)) * 60 + parseInt(minutes);
+  let nextPrayerTimeInMinutes = prayerTimesInMinutes.find(
+    (prayerTime) => prayerTime > timeInMinutes
+  );
 
-    // Convert prayer times to minutes
-    const prayerTimesInMinutes = prayers.map((prayer) => {
-        const [prayerHours, prayerMinutes, prayerPeriod] = prayer.split(/:| /);
-        const totalMinutes = (parseInt(prayerHours) % 12 + (prayerPeriod.toUpperCase() === 'PM' ? 12 : 0)) * 60 + parseInt(prayerMinutes);
-        return totalMinutes;
-    });
+  if (nextPrayerTimeInMinutes === undefined) {
+    nextPrayerTimeInMinutes = Math.min(...prayerTimesInMinutes) + 24 * 60;
+  }
 
-    // Find the next prayer time
-    const upcomingPrayerTimes = prayerTimesInMinutes.filter((prayerTime) => prayerTime > timeInMinutes);
+  const timeDifferenceInMinutes = nextPrayerTimeInMinutes - timeInMinutes;
+  const nextPrayerTime = formatTimeFromMinutes(nextPrayerTimeInMinutes);
 
-    if (upcomingPrayerTimes.length > 0) {
-        // Sort the upcoming prayer times and take the first one
-        const nextPrayerTime = upcomingPrayerTimes.sort((a, b) => a - b)[0];
-
-        // Convert the next prayer time back to formatted time
-        const nextPrayerHours = Math.floor(nextPrayerTime / 60);
-        const nextPrayerMinutes = nextPrayerTime % 60;
-        const nextPrayerPeriod = nextPrayerHours >= 12 ? 'PM' : 'AM';
-        const formattedNextPrayerTime = `${nextPrayerHours % 12}:${nextPrayerMinutes < 10 ? '0' : ''}${nextPrayerMinutes} ${nextPrayerPeriod}`;
-    
-        return formattedNextPrayerTime;
-    } else {
-        return "No upcoming prayer time";
-    }
+  return { nextPrayerTime, timeDifferenceInMinutes };
 }
 
-// Example usage
-const nextPrayerTime = getNextPrayerTime('06:52 PM', ['05:57 AM', '12:08 PM', '02:46 PM', '05:04 PM', '06:19 PM']);
-console.log(nextPrayerTime);
+function formatTimeFromMinutes(timeInMinutes) {
+  const hours = Math.floor(timeInMinutes / 60);
+  const minutes = timeInMinutes % 60;
+  const period = hours > 12 ? "PM" : "AM";
+  const formattedTime = `${hours % 12 === 0 ? 12 : hours % 12}:${
+    minutes < 10 ? "0" : ""
+  }${minutes} ${period}`;
 
+  return formattedTime;
+}
 
+const result = getNextPrayerTimeAndDifference(formattedTime, prayers);
 
-
-
-
-
-
-nextPrayer = formatAMPM(nextPrayer);
+let nextPrayer = result.nextPrayerTime;
 document.querySelector(".prayer-card__next__now").textContent = nextPrayer;
 
+let today = prayerTimes[dayOfMonth].timings;
 
+function getPrayer(today, nextPrayer) {
+  return Object.keys(today).find(
+    (key) => convertTo12HourFormat(today[key]) === nextPrayer
+  );
+}
+
+// timeDifference
+function translateTimeDifference(timeDifferenceInMinutes) {
+  const hours = Math.floor(timeDifferenceInMinutes / 60);
+  const minutes = timeDifferenceInMinutes % 60;
+
+  let prayer = getPrayer(today, nextPrayer);
+
+  let timeDifferenceString = "";
+
+  if (hours > 0) {
+    timeDifferenceString += `${hours}h `;
+  }
+
+  if (minutes > 0) {
+    timeDifferenceString += `${minutes}min`;
+  }
+
+  if (timeDifferenceString === "") {
+    timeDifferenceString = "Now";
+  } else {
+    timeDifferenceString += `left until ${prayer}`;
+  }
+
+  return timeDifferenceString;
+}
+
+const translatedTimeDifference = translateTimeDifference(
+  result.timeDifferenceInMinutes
+);
+
+document.querySelector(".prayer-card__next__nextPrayerTime").textContent =
+  translatedTimeDifference;
 
 //prayers
 function convertTo12HourFormat(timeString) {
@@ -291,7 +356,7 @@ function convertTo12HourFormat(timeString) {
 
   let period = "AM";
 
-  if (hours >= 12) {
+  if (hours > 12) {
     period = "PM";
     if (hours > 12) {
       hours -= 12;
@@ -301,8 +366,6 @@ function convertTo12HourFormat(timeString) {
 
   return `${formattedHours}:${minutes < 10 ? "0" : ""}${minutes} ${period}`;
 }
-
-
 
 prayerHour.forEach((e) => {
   const prayerName = e.getAttribute("id");
@@ -314,6 +377,5 @@ prayerHour.forEach((e) => {
     e.parentElement.children[0].classList.add("now-desc");
     e.classList.add("now-desc");
   }
-
   e.textContent = convertedTime;
 });

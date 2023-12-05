@@ -4,15 +4,15 @@
 
 //base styles
 @import "base";
+//mixins
+@import "mixins";
 
 //utilities
-
 @import "breakpoints";
 @import "mediaQuearies";
 @import "utilities";
 
-//mixins
-@import "mixins";
+
 
 // cards
 @import "components/cards";
